@@ -1,0 +1,128 @@
+# SOURCE FILE FOR OPEN API DOCUMENTATION.
+# Run `make openapi` to bundle into resources/gen/openapi/openapi.json.
+openapi: "3.0.3"
+info:
+  title: Calculator Service API
+  description: |
+    REST API providing add and multiply calculator operations.
+
+    All `/calculator/v1` endpoints require the `api-key` header.
+  version: "1.0"
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+paths:
+  /healthcheck:
+    get:
+      summary: Health check
+      operationId: healthcheck
+      description: Returns service health status. No authentication required.
+      tags:
+        - Default
+      responses:
+        "200":
+          description: Service is healthy.
+          content:
+            application/json:
+              schema:
+                $ref: "./schema/healthcheck/healthcheck.yaml#/HealthcheckResponse"
+  /calculator/v1/add:
+    post:
+      summary: Add two numbers
+      operationId: calculator.add
+      description: |
+        Adds `value1` and `value2`, persists the transaction to the database,
+        and returns the result.
+
+        Both operands must be in the range **[-1000, 1000]**.
+      tags:
+        - Calculator
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./schema/calculator/add.yaml#/AddRequest"
+      responses:
+        "200":
+          description: Addition result.
+          content:
+            application/json:
+              schema:
+                $ref: "./schema/calculator/add.yaml#/AddResponse"
+        "400":
+          description: An operand is outside the allowed range [-1000, 1000].
+          content:
+            application/json:
+              schema:
+                $ref: "./schema/common/error.yaml#/ErrorResponse"
+        "401":
+          description: Missing or invalid `api-key` header.
+          content:
+            application/json:
+              schema:
+                $ref: "./schema/common/error.yaml#/ErrorResponse"
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schema/common/error.yaml#/ErrorResponse"
+  /calculator/v1/multiply:
+    post:
+      summary: Multiply two numbers
+      operationId: calculator.multiply
+      description: |
+        Multiplies `value1` by `value2`, persists the transaction to the database,
+        and returns the result.
+
+        Both operands must be in the range **[-1000, 1000]**.
+      tags:
+        - Calculator
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./schema/calculator/multiply.yaml#/MultiplyRequest"
+      responses:
+        "200":
+          description: Multiplication result.
+          content:
+            application/json:
+              schema:
+                $ref: "./schema/calculator/multiply.yaml#/MultiplyResponse"
+        "400":
+          description: An operand is outside the allowed range [-1000, 1000].
+          content:
+            application/json:
+              schema:
+                $ref: "./schema/common/error.yaml#/ErrorResponse"
+        "401":
+          description: Missing or invalid `api-key` header.
+          content:
+            application/json:
+              schema:
+                $ref: "./schema/common/error.yaml#/ErrorResponse"
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schema/common/error.yaml#/ErrorResponse"
+tags:
+  - name: Default
+    description: Default service endpoints (no authentication required).
+  - name: Calculator
+    description: Calculator operation endpoints (api-key required).
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: api-key
+      description: Pass `a-dummy-but-valid-api-key` (or the configured `API_KEY` env var).

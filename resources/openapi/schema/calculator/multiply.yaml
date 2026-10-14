@@ -1,0 +1,50 @@
+MultiplyRequest:
+  type: object
+  description: Request body for POST /calculator/v1/multiply.
+  required:
+    - value1
+    - value2
+  properties:
+    value1:
+      type: number
+      description: First operand. Must be in range [-1000, 1000].
+      minimum: -1000
+      maximum: 1000
+      example: 6.0
+    value2:
+      type: number
+      description: Second operand. Must be in range [-1000, 1000].
+      minimum: -1000
+      maximum: 1000
+      example: 7.0
+
+MultiplyData:
+  type: object
+  description: Payload returned inside the multiply response envelope.
+  properties:
+    transaction-uuid:
+      type: string
+      format: uuid
+      description: UUID of the persisted calculator_transactions row.
+      example: "550e8400-e29b-41d4-a716-446655440001"
+    value1:
+      type: number
+      example: 6.0
+    value2:
+      type: number
+      example: 7.0
+    operation:
+      type: string
+      enum: [MULTIPLY]
+      example: MULTIPLY
+    result:
+      type: number
+      description: value1 * value2
+      example: 42.0
+
+MultiplyResponse:
+  type: object
+  description: Success response envelope for the multiply operation.
+  properties:
+    data:
+      $ref: "#/MultiplyData"

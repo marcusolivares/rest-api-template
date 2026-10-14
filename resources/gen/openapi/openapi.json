@@ -1,0 +1,282 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Calculator Service API",
+    "description": "REST API providing add and multiply calculator operations.\n\nAll `/calculator/v1` endpoints require the `api-key` header.\n",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Local development server"
+    }
+  ],
+  "paths": {
+    "/healthcheck": {
+      "get": {
+        "summary": "Health check",
+        "operationId": "healthcheck",
+        "description": "Returns service health status. No authentication required.",
+        "tags": ["Default"],
+        "responses": {
+          "200": {
+            "description": "Service is healthy.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "Response returned by the health check endpoint.",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "Health status value.",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/calculator/v1/add": {
+      "post": {
+        "summary": "Add two numbers",
+        "operationId": "calculator.add",
+        "description": "Adds `value1` and `value2`, persists the transaction to the database,\nand returns the result.\n\nBoth operands must be in the range **[-1000, 1000]**.\n",
+        "tags": ["Calculator"],
+        "security": [{ "ApiKeyAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "Request body for POST /calculator/v1/add.",
+                "required": ["value1", "value2"],
+                "properties": {
+                  "value1": {
+                    "type": "number",
+                    "description": "First operand. Must be in range [-1000, 1000].",
+                    "minimum": -1000,
+                    "maximum": 1000,
+                    "example": 25.5
+                  },
+                  "value2": {
+                    "type": "number",
+                    "description": "Second operand. Must be in range [-1000, 1000].",
+                    "minimum": -1000,
+                    "maximum": 1000,
+                    "example": 10.0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Addition result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "Success response envelope for the add operation.",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "description": "Payload returned inside the add response envelope.",
+                      "properties": {
+                        "transaction-uuid": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "UUID of the persisted calculator_transactions row.",
+                          "example": "550e8400-e29b-41d4-a716-446655440000"
+                        },
+                        "value1": { "type": "number", "example": 25.5 },
+                        "value2": { "type": "number", "example": 10.0 },
+                        "operation": {
+                          "type": "string",
+                          "enum": ["ADD"],
+                          "example": "ADD"
+                        },
+                        "result": {
+                          "type": "number",
+                          "description": "value1 + value2",
+                          "example": 35.5
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "An operand is outside the allowed range [-1000, 1000].",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid `api-key` header.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/calculator/v1/multiply": {
+      "post": {
+        "summary": "Multiply two numbers",
+        "operationId": "calculator.multiply",
+        "description": "Multiplies `value1` by `value2`, persists the transaction to the database,\nand returns the result.\n\nBoth operands must be in the range **[-1000, 1000]**.\n",
+        "tags": ["Calculator"],
+        "security": [{ "ApiKeyAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "Request body for POST /calculator/v1/multiply.",
+                "required": ["value1", "value2"],
+                "properties": {
+                  "value1": {
+                    "type": "number",
+                    "description": "First operand. Must be in range [-1000, 1000].",
+                    "minimum": -1000,
+                    "maximum": 1000,
+                    "example": 6.0
+                  },
+                  "value2": {
+                    "type": "number",
+                    "description": "Second operand. Must be in range [-1000, 1000].",
+                    "minimum": -1000,
+                    "maximum": 1000,
+                    "example": 7.0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Multiplication result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "Success response envelope for the multiply operation.",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "description": "Payload returned inside the multiply response envelope.",
+                      "properties": {
+                        "transaction-uuid": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "UUID of the persisted calculator_transactions row.",
+                          "example": "550e8400-e29b-41d4-a716-446655440001"
+                        },
+                        "value1": { "type": "number", "example": 6.0 },
+                        "value2": { "type": "number", "example": 7.0 },
+                        "operation": {
+                          "type": "string",
+                          "enum": ["MULTIPLY"],
+                          "example": "MULTIPLY"
+                        },
+                        "result": {
+                          "type": "number",
+                          "description": "value1 * value2",
+                          "example": 42.0
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "An operand is outside the allowed range [-1000, 1000].",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid `api-key` header.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Default",
+      "description": "Default service endpoints (no authentication required)."
+    },
+    {
+      "name": "Calculator",
+      "description": "Calculator operation endpoints (api-key required)."
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "api-key",
+        "description": "Pass `a-dummy-but-valid-api-key` (or the configured API_KEY env var)."
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "description": "Standard response envelope returned by all endpoints on failure.",
+        "properties": {
+          "error-code": {
+            "type": "string",
+            "description": "Machine-readable error code.",
+            "example": "VALUE1_OUT_OF_RANGE"
+          },
+          "error-message": {
+            "type": "string",
+            "description": "Human-readable description of the error.",
+            "example": "value1 must be in range [-1000, 1000]"
+          }
+        }
+      }
+    }
+  }
+}

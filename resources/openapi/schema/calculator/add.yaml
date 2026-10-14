@@ -1,0 +1,50 @@
+AddRequest:
+  type: object
+  description: Request body for POST /calculator/v1/add.
+  required:
+    - value1
+    - value2
+  properties:
+    value1:
+      type: number
+      description: First operand. Must be in range [-1000, 1000].
+      minimum: -1000
+      maximum: 1000
+      example: 25.5
+    value2:
+      type: number
+      description: Second operand. Must be in range [-1000, 1000].
+      minimum: -1000
+      maximum: 1000
+      example: 10.0
+
+AddData:
+  type: object
+  description: Payload returned inside the add response envelope.
+  properties:
+    transaction-uuid:
+      type: string
+      format: uuid
+      description: UUID of the persisted calculator_transactions row.
+      example: "550e8400-e29b-41d4-a716-446655440000"
+    value1:
+      type: number
+      example: 25.5
+    value2:
+      type: number
+      example: 10.0
+    operation:
+      type: string
+      enum: [ADD]
+      example: ADD
+    result:
+      type: number
+      description: value1 + value2
+      example: 35.5
+
+AddResponse:
+  type: object
+  description: Success response envelope for the add operation.
+  properties:
+    data:
+      $ref: "#/AddData"
